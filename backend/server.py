@@ -457,6 +457,11 @@ async def update_config(config_data: dict, token_data: dict = Depends(verify_tok
     
     return {"message": "Config updated"}
 
+# Root endpoint
+@api_router.get("/")
+async def root():
+    return {"message": "CalmSphere AI API", "status": "operational"}
+
 # Include router
 app.include_router(api_router)
 
