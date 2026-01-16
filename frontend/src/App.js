@@ -14,6 +14,10 @@ import MoodLog from './pages/MoodLog';
 import Progress from './pages/Progress';
 import Modules from './pages/Modules';
 import Crisis from './pages/Crisis';
+import Appointments from './pages/Appointments';
+import Journal from './pages/Journal';
+import Community from './pages/Community';
+import Insights from './pages/Insights';
 
 import './App.css';
 
