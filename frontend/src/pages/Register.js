@@ -114,7 +114,7 @@ export default function Register() {
 
         <div className="mt-6 bg-muted/30 rounded-xl p-4 border border-border/40">
           <p className="text-sm text-muted-foreground text-center">
-            By registering, you acknowledge that CalmSphere AI is a support tool and not a substitute for professional mental health care.
+            By registering, you acknowledge that CalmSphere AI is a support tool and not a substitute for professional mental health care. In crisis, contact KIRAN: 1800-599-0019.
           </p>
         </div>
       </div>
