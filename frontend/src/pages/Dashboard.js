@@ -127,6 +127,45 @@ export default function Dashboard() {
           </button>
         </div>
 
+        {/* New Features Row */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <button
+            onClick={() => navigate('/appointments')}
+            className="bg-card rounded-2xl p-6 border border-border/40 shadow-soft hover:shadow-float hover:-translate-y-1 transition-all text-left group"
+          >
+            <Calendar className="w-8 h-8 mb-3 text-primary group-hover:scale-110 transition-transform" strokeWidth={1.5} />
+            <h3 className="font-fraunces text-xl font-medium mb-1">Appointments</h3>
+            <p className="text-muted-foreground text-sm">Book counseling sessions</p>
+          </button>
+
+          <button
+            onClick={() => navigate('/journal')}
+            className="bg-card rounded-2xl p-6 border border-border/40 shadow-soft hover:shadow-float hover:-translate-y-1 transition-all text-left group"
+          >
+            <BookOpen className="w-8 h-8 mb-3 text-secondary group-hover:scale-110 transition-transform" strokeWidth={1.5} />
+            <h3 className="font-fraunces text-xl font-medium mb-1">Journal</h3>
+            <p className="text-muted-foreground text-sm">Reflect & track your journey</p>
+          </button>
+
+          <button
+            onClick={() => navigate('/community')}
+            className="bg-card rounded-2xl p-6 border border-border/40 shadow-soft hover:shadow-float hover:-translate-y-1 transition-all text-left group"
+          >
+            <Users className="w-8 h-8 mb-3 text-accent group-hover:scale-110 transition-transform" strokeWidth={1.5} />
+            <h3 className="font-fraunces text-xl font-medium mb-1">Community</h3>
+            <p className="text-muted-foreground text-sm">Connect with peers</p>
+          </button>
+
+          <button
+            onClick={() => navigate('/insights')}
+            className="bg-card rounded-2xl p-6 border border-border/40 shadow-soft hover:shadow-float hover:-translate-y-1 transition-all text-left group"
+          >
+            <Sparkles className="w-8 h-8 mb-3 text-chart-4 group-hover:scale-110 transition-transform" strokeWidth={1.5} />
+            <h3 className="font-fraunces text-xl font-medium mb-1">Insights</h3>
+            <p className="text-muted-foreground text-sm">Weekly wellness report</p>
+          </button>
+        </div>
+
         {/* Latest Mood & Scores */}
         <div className="grid md:grid-cols-2 gap-6 mb-12">
           <div className="bg-card rounded-2xl p-8 border border-border/40 shadow-soft">
