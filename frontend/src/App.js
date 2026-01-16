@@ -49,6 +49,10 @@ function AppRoutes() {
       <Route path="/progress" element={<PrivateRoute><Progress /></PrivateRoute>} />
       <Route path="/modules" element={<PrivateRoute><Modules /></PrivateRoute>} />
       <Route path="/crisis" element={<Crisis />} />
+      <Route path="/appointments" element={<PrivateRoute><Appointments /></PrivateRoute>} />
+      <Route path="/journal" element={<PrivateRoute><Journal /></PrivateRoute>} />
+      <Route path="/community" element={<PrivateRoute><Community /></PrivateRoute>} />
+      <Route path="/insights" element={<PrivateRoute><Insights /></PrivateRoute>} />
     </Routes>
   );
 }
