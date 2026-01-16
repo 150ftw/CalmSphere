@@ -108,3 +108,76 @@ class MoodEntryRequest(BaseModel):
     mood_rating: int
     tags: List[str] = []
     note: Optional[str] = None
+
+# New Models for Enhanced Features
+
+class Appointment(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    counselor_name: Optional[str] = None
+    appointment_date: datetime
+    appointment_type: str  # 'campus', 'external', 'online'
+    status: str = "scheduled"  # scheduled, completed, cancelled, rescheduled
+    notes: Optional[str] = None
+    reminder_sent: bool = False
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class JournalEntry(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    title: Optional[str] = None
+    content: str
+    prompt_type: Optional[str] = None  # guided, free, reflection
+    sentiment: Optional[str] = None  # positive, neutral, negative
+    tags: List[str] = []
+    is_private: bool = True
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class CommunityPost(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    username_display: str  # Anonymous username
+    category: str  # stress, anxiety, depression, success, support
+    title: str
+    content: str
+    is_anonymous: bool = True
+    likes_count: int = 0
+    comments_count: int = 0
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class CommunityComment(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    post_id: str
+    user_id: str
+    username_display: str
+    content: str
+    likes_count: int = 0
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class WeeklyInsight(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    week_start: datetime
+    week_end: datetime
+    average_mood: float
+    mood_trend: str  # improving, stable, declining
+    assessment_summary: dict
+    triggers_identified: List[str] = []
+    recommendations: List[str] = []
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class UserGoal(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    goal_type: str  # mood_improvement, assessment_reduction, consistency
+    target_value: int
+    current_value: int
+    deadline: Optional[datetime] = None
+    status: str = "active"  # active, completed, abandoned
+    created_at: datetime = Field(default_factory=datetime.utcnow)
