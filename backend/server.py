@@ -57,7 +57,7 @@ async def get_config() -> dict:
     config = await db.config_settings.find_one({}, {"_id": 0})
     if not config:
         config = {
-            "crisis_hotline": "988",
+            "crisis_hotline": "1800-599-0019",  # KIRAN Mental Health Helpline
             "campus_counselor_phone": "Contact your campus health center",
             "campus_counselor_email": "Available through campus resources",
             "risk_threshold_high": 15,
