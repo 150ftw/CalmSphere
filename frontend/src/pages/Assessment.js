@@ -68,7 +68,7 @@ export default function Assessment() {
 
             <p className="text-muted-foreground mb-6 leading-relaxed">
               Your assessment has been recorded. Remember, this is a screening tool and not a diagnosis. 
-              If you're concerned about your results, please consider speaking with a mental health professional.
+              If you're concerned about your results, please consider speaking with a mental health professional or contact KIRAN helpline: 1800-599-0019.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3">
