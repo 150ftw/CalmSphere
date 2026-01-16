@@ -105,12 +105,12 @@ export default function Landing() {
         <div className="bg-muted/30 rounded-2xl p-8 border border-border/40">
           <h3 className="font-fraunces text-2xl font-medium mb-4">Important Notice</h3>
           <p className="text-muted-foreground leading-relaxed mb-4">
-            CalmSphere AI is a self-help and triage tool designed to support your mental well-being. 
-            It is <strong>not a substitute for professional mental health care</strong> and does not provide 
+            CalmSphere AI is a <strong>supportive tool</strong>, not a replacement for professional mental health care. 
+            It is <strong>not a substitute for professional therapy</strong> and does not provide 
             medical diagnoses or treatment recommendations.
           </p>
           <p className="text-muted-foreground leading-relaxed">
-            If you're experiencing a mental health crisis, please contact a crisis hotline (988 in the US) 
+            If you're experiencing a mental health crisis, please contact KIRAN helpline (1800-599-0019) 
             or your campus counseling center immediately. CalmSphere AI encourages and facilitates connections 
             to professional support when needed.
           </p>
