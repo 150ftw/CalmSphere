@@ -91,7 +91,7 @@ export default function Chat() {
       {/* Disclaimer Banner */}
       <div className="bg-muted/30 border-b border-border/40 px-6 py-2">
         <p className="text-xs text-center text-muted-foreground max-w-4xl mx-auto">
-          CalmSphere AI is a support tool, not a substitute for professional mental health care. In crisis, call 988 or emergency services.
+          CalmSphere AI is a support tool, not a substitute for professional mental health care. In crisis, call KIRAN: 1800-599-0019 or emergency: 112.
         </p>
       </div>
 
