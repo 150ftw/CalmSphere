@@ -86,7 +86,7 @@ class SelfHelpModule(BaseModel):
 class ConfigSettings(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    crisis_hotline: str = "988"
+    crisis_hotline: str = "1800-599-0019"  # KIRAN Mental Health Helpline
     campus_counselor_phone: Optional[str] = None
     campus_counselor_email: Optional[str] = None
     risk_threshold_high: int = 15
