@@ -463,6 +463,10 @@ async def update_config(config_data: dict, token_data: dict = Depends(verify_tok
 async def root():
     return {"message": "CalmSphere AI API", "status": "operational"}
 
+# Include new features routes
+new_features_routes.set_db(db)
+app.include_router(new_features_routes.router, prefix="/api")
+
 # Include router
 app.include_router(api_router)
 
