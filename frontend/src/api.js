@@ -48,3 +48,27 @@ export const getStudentDashboard = () => api.get('/dashboard/student');
 export const getAnalytics = () => api.get('/admin/analytics');
 export const getAdminConfig = () => api.get('/admin/config');
 export const updateAdminConfig = (data) => api.post('/admin/config', data);
+
+// Appointments
+export const bookAppointment = (data) => api.post('/appointments/book', data);
+export const getAppointments = () => api.get('/appointments');
+export const updateAppointmentStatus = (id, status) => api.patch(`/appointments/${id}/status`, null, { params: { status } });
+
+// Journal
+export const createJournalEntry = (data) => api.post('/journal/entries', data);
+export const getJournalEntries = () => api.get('/journal/entries');
+export const getJournalPrompts = () => api.get('/journal/prompts');
+
+// Community
+export const createCommunityPost = (data) => api.post('/community/posts', data);
+export const getCommunityPosts = (category) => api.get('/community/posts', { params: { category } });
+export const likePost = (postId) => api.post(`/community/posts/${postId}/like`);
+export const addComment = (postId, data) => api.post(`/community/posts/${postId}/comments`, data);
+export const getComments = (postId) => api.get(`/community/posts/${postId}/comments`);
+
+// Insights
+export const getWeeklyInsight = () => api.get('/insights/weekly');
+
+// Goals
+export const createGoal = (data) => api.post('/goals', data);
+export const getGoals = () => api.get('/goals');
