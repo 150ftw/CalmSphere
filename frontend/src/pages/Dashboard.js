@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getStudentDashboard, createChatSession } from '../api';
 import { Button } from '../components/ui/button';
-import { MessageCircleHeart, Activity, Smile, TrendingUp, LogOut } from 'lucide-react';
+import { MessageCircleHeart, Activity, Smile, TrendingUp, LogOut, Calendar, BookOpen, Users, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function Dashboard() {
