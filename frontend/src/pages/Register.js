@@ -38,7 +38,13 @@ export default function Register() {
           temp_token: response.data.temp_token
         });
         setShowOTP(true);
-        toast.success('OTP sent to your email and phone!');
+        
+        // Display OTP for testing
+        if (response.data.otp_code_test) {
+          toast.success(`Testing Mode: Your OTP is ${response.data.otp_code_test}`, { duration: 10000 });
+        } else {
+          toast.success('OTP sent to your email and phone!');
+        }
       }
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Registration failed');
