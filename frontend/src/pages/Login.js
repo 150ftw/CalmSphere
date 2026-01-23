@@ -5,11 +5,17 @@ import { login } from '../api';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { toast } from 'sonner';
+import axios from 'axios';
+
+const API_URL = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 export default function Login() {
   const navigate = useNavigate();
   const { loginUser } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [showOTP, setShowOTP] = useState(false);
+  const [otpData, setOtpData] = useState(null);
+  const [otp, setOtp] = useState('');
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -21,6 +27,33 @@ export default function Login() {
 
     try {
       const response = await login(formData.email, formData.password);
+      if (response.data.requires_otp) {
+        setOtpData({
+          user: response.data.user,
+          temp_token: response.data.temp_token
+        });
+        setShowOTP(true);
+        toast.success('OTP sent to your email and phone!');
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Login failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOTP = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const response = await axios.post(`${API_URL}/auth/verify-login-otp`, null, {
+        params: {
+          user_id: otpData.user.id,
+          otp_code: otp,
+          temp_token: otpData.temp_token
+        }
+      });
       loginUser(response.data.user, response.data.access_token);
       toast.success('Welcome back!');
       
@@ -31,11 +64,54 @@ export default function Login() {
         navigate('/dashboard');
       }
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Login failed');
+      toast.error(error.response?.data?.detail || 'Invalid OTP');
     } finally {
       setLoading(false);
     }
   };
+
+  if (showOTP) {
+    return (
+      <div className="min-h-screen bg-background bg-noise flex items-center justify-center px-6">
+        <div className="w-full max-w-md">
+          <div className="bg-card rounded-2xl shadow-float p-8 border border-border/40">
+            <h1 className="font-fraunces text-4xl font-normal mb-2 text-center">Verify OTP</h1>
+            <p className="text-muted-foreground text-center mb-8">
+              Enter the 6-digit code sent to your email and phone
+            </p>
+
+            <form onSubmit={handleVerifyOTP} className="space-y-6">
+              <div>
+                <Input
+                  data-testid="otp-input"
+                  type="text"
+                  maxLength={6}
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                  required
+                  className="w-full bg-white/50 border-border/60 focus:border-primary/50 focus:ring-4 focus:ring-primary/5 rounded-xl h-16 px-4 text-center text-3xl tracking-widest"
+                  placeholder="000000"
+                />
+              </div>
+
+              <Button
+                data-testid="verify-otp-btn"
+                type="submit"
+                disabled={loading || otp.length !== 6}
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 rounded-full py-6 text-lg font-medium shadow-soft hover:shadow-float transition-all disabled:opacity-50"
+              >
+                {loading ? 'Verifying...' : 'Verify & Login'}
+              </Button>
+            </form>
+
+            <p className="text-center text-sm text-muted-foreground mt-4">
+              Didn't receive the code? Check your spam folder.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background bg-noise flex items-center justify-center px-6">
@@ -77,7 +153,7 @@ export default function Login() {
               disabled={loading}
               className="w-full bg-primary text-primary-foreground hover:bg-primary/90 rounded-full py-6 text-lg font-medium shadow-soft hover:shadow-float transition-all"
             >
-              {loading ? 'Signing In...' : 'Sign In'}
+              {loading ? 'Signing In...' : 'Continue'}
             </Button>
           </form>
 
@@ -86,6 +162,12 @@ export default function Login() {
             <Link to="/register" className="text-primary hover:underline">
               Register now
             </Link>
+          </p>
+        </div>
+
+        <div className="mt-4 bg-muted/30 rounded-xl p-4 border border-border/40">
+          <p className="text-xs text-muted-foreground text-center">
+            🔒 Secure 2-Factor Authentication: You'll receive a 6-digit OTP on your email and phone
           </p>
         </div>
       </div>
