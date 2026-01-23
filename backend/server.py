@@ -87,10 +87,16 @@ async def register(user_data: UserCreate):
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
     
+    # Check phone number
+    existing_phone = await db.users.find_one({"phone_number": user_data.phone_number}, {"_id": 0})
+    if existing_phone:
+        raise HTTPException(status_code=400, detail="Phone number already registered")
+    
     # Create user
     user = User(
         email=user_data.email,
         username=user_data.username,
+        phone_number=user_data.phone_number,
         is_pseudonymous=user_data.is_pseudonymous,
         role=user_data.role
     )
@@ -101,12 +107,48 @@ async def register(user_data: UserCreate):
     
     await db.users.insert_one(user_dict)
     
-    # Create token
+    # Send OTP for verification
+    otp_result = await create_and_send_otp(db, user.id, user.email, user.phone_number, "registration")
+    
+    # Create temporary token
+    temp_token = create_access_token({"user_id": user.id, "email": user.email, "role": user.role, "temp": True})
+    
+    return Token(access_token="", token_type="bearer", user=user, requires_otp=True, temp_token=temp_token)
+
+@api_router.post("/auth/verify-otp")
+async def verify_registration_otp(user_id: str, otp_code: str, temp_token: str):
+    # Verify temp token
+    try:
+        from jose import jwt
+        payload = jwt.decode(temp_token, os.environ.get('JWT_SECRET', 'default_secret'), algorithms=[os.environ.get('JWT_ALGORITHM', 'HS256')])
+        if not payload.get('temp') or payload.get('user_id') != user_id:
+            raise HTTPException(status_code=401, detail="Invalid token")
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
+    # Verify OTP
+    verification = await verify_otp(db, user_id, otp_code, "registration")
+    if not verification['success']:
+        raise HTTPException(status_code=400, detail=verification['message'])
+    
+    # Mark user as verified
+    await db.users.update_one(
+        {"id": user_id},
+        {"$set": {"email_verified": True, "phone_verified": True}}
+    )
+    
+    # Get user and create real token
+    user_dict = await db.users.find_one({"id": user_id}, {"_id": 0})
+    user_dict.pop('password_hash')
+    if isinstance(user_dict['created_at'], str):
+        user_dict['created_at'] = datetime.fromisoformat(user_dict['created_at'])
+    user = User(**user_dict)
+    
     token = create_access_token({"user_id": user.id, "email": user.email, "role": user.role})
     
     return Token(access_token=token, token_type="bearer", user=user)
 
-@api_router.post("/auth/login", response_model=Token)
+@api_router.post("/auth/login")
 async def login(email: str, password: str):
     user_dict = await db.users.find_one({"email": email}, {"_id": 0})
     if not user_dict:
@@ -115,7 +157,39 @@ async def login(email: str, password: str):
     if not verify_password(password, user_dict['password_hash']):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
+    # Send OTP for login
+    otp_result = await create_and_send_otp(db, user_dict['id'], user_dict['email'], user_dict['phone_number'], "login")
+    
     # Convert to User model
+    user_dict_copy = user_dict.copy()
+    user_dict_copy.pop('password_hash')
+    if isinstance(user_dict_copy['created_at'], str):
+        user_dict_copy['created_at'] = datetime.fromisoformat(user_dict_copy['created_at'])
+    user = User(**user_dict_copy)
+    
+    # Create temporary token
+    temp_token = create_access_token({"user_id": user.id, "email": user.email, "role": user.role, "temp": True})
+    
+    return Token(access_token="", token_type="bearer", user=user, requires_otp=True, temp_token=temp_token)
+
+@api_router.post("/auth/verify-login-otp")
+async def verify_login_otp(user_id: str, otp_code: str, temp_token: str):
+    # Verify temp token
+    try:
+        from jose import jwt
+        payload = jwt.decode(temp_token, os.environ.get('JWT_SECRET', 'default_secret'), algorithms=[os.environ.get('JWT_ALGORITHM', 'HS256')])
+        if not payload.get('temp') or payload.get('user_id') != user_id:
+            raise HTTPException(status_code=401, detail="Invalid token")
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
+    # Verify OTP
+    verification = await verify_otp(db, user_id, otp_code, "login")
+    if not verification['success']:
+        raise HTTPException(status_code=400, detail=verification['message'])
+    
+    # Get user and create real token
+    user_dict = await db.users.find_one({"id": user_id}, {"_id": 0})
     user_dict.pop('password_hash')
     if isinstance(user_dict['created_at'], str):
         user_dict['created_at'] = datetime.fromisoformat(user_dict['created_at'])
