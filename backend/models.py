@@ -52,6 +52,7 @@ class Token(BaseModel):
     user: User
     requires_otp: bool = False
     temp_token: Optional[str] = None
+    otp_code_test: Optional[str] = None  # FOR TESTING ONLY
 
 class ChatMessage(BaseModel):
     model_config = ConfigDict(extra="ignore")
