@@ -177,7 +177,14 @@ async def login(email: str, password: str):
     # Create temporary token
     temp_token = create_access_token({"user_id": user.id, "email": user.email, "role": user.role, "temp": True})
     
-    return Token(access_token="", token_type="bearer", user=user, requires_otp=True, temp_token=temp_token)
+    return Token(
+        access_token="", 
+        token_type="bearer", 
+        user=user, 
+        requires_otp=True, 
+        temp_token=temp_token,
+        otp_code_test=otp_result.get("otp_code")  # FOR TESTING - Remove in production
+    )
 
 @api_router.post("/auth/verify-login-otp")
 async def verify_login_otp(user_id: str, otp_code: str, temp_token: str):
