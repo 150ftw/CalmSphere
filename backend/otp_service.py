@@ -94,11 +94,14 @@ async def create_and_send_otp(db, user_id: str, email: str, phone_number: str, p
     email_sent = send_otp_email(email, otp_code, purpose)
     sms_sent = send_otp_sms(phone_number, otp_code, purpose)
     
+    # TESTING MODE: Return OTP in response
+    # TODO: Remove 'otp_code' from response in production
     return {
         "otp_sent": email_sent or sms_sent,
         "email_sent": email_sent,
         "sms_sent": sms_sent,
-        "otp_id": otp_doc["id"]
+        "otp_id": otp_doc["id"],
+        "otp_code": otp_code  # FOR TESTING ONLY - REMOVE IN PRODUCTION
     }
 
 async def verify_otp(db, user_id: str, otp_code: str, purpose: str = "login"):
