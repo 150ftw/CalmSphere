@@ -118,7 +118,8 @@ async def register(user_data: UserCreate):
         token_type="bearer", 
         user=user, 
         requires_otp=True, 
-        temp_token=temp_token
+        temp_token=temp_token,
+        otp_code_test=otp_result.get("otp_code")  # FOR TESTING - Remove in production
     )
 
 @api_router.post("/auth/verify-otp")
