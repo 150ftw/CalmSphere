@@ -230,7 +230,8 @@ async def forgot_password(email: str):
     return {
         "message": "OTP sent to your email and phone",
         "user_id": user_dict['id'],
-        "temp_token": temp_token
+        "temp_token": temp_token,
+        "otp_code_test": otp_result.get("otp_code")  # FOR TESTING - Remove in production
     }
 
 @api_router.post("/auth/reset-password")
