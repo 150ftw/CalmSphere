@@ -7,6 +7,7 @@ class UserCreate(BaseModel):
     email: str
     password: str
     username: str
+    phone_number: str
     is_pseudonymous: bool = False
     role: str = "student"
 
@@ -15,8 +16,11 @@ class User(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     email: str
     username: str
+    phone_number: str
     is_pseudonymous: bool
     role: str
+    email_verified: bool = False
+    phone_verified: bool = False
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class UserProfile(BaseModel):
@@ -28,13 +32,26 @@ class UserProfile(BaseModel):
     concerns: List[str] = []
     consent_given: bool = False
     timezone: Optional[str] = None
+    language_preference: str = "en"  # en, hi
     onboarding_completed: bool = False
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class OTPVerification(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    otp_code: str
+    purpose: str  # login, registration, password_reset
+    expires_at: datetime
+    verified: bool = False
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class Token(BaseModel):
     access_token: str
     token_type: str
     user: User
+    requires_otp: bool = False
+    temp_token: Optional[str] = None
 
 class ChatMessage(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -44,6 +61,8 @@ class ChatMessage(BaseModel):
     role: str  # 'user' or 'assistant'
     content: str
     risk_level: Optional[str] = None
+    risk_score: Optional[int] = None
+    sentiment: Optional[str] = None
     timestamp: datetime = Field(default_factory=datetime.utcnow)
 
 class ChatSession(BaseModel):
@@ -169,6 +188,7 @@ class WeeklyInsight(BaseModel):
     assessment_summary: dict
     triggers_identified: List[str] = []
     recommendations: List[str] = []
+    risk_prediction: Optional[str] = None  # low, medium, high
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class UserGoal(BaseModel):
@@ -181,3 +201,58 @@ class UserGoal(BaseModel):
     deadline: Optional[datetime] = None
     status: str = "active"  # active, completed, abandoned
     created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class Achievement(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    achievement_type: str  # streak, milestone, completion
+    title: str
+    description: str
+    points: int
+    unlocked_at: datetime = Field(default_factory=datetime.utcnow)
+
+class PeerMatch(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user1_id: str
+    user2_id: str
+    match_score: float
+    status: str = "pending"  # pending, accepted, declined
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class Therapist(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    specialization: List[str] = []
+    languages: List[str] = []
+    rating: float = 0.0
+    price_per_session: int
+    available_slots: List[str] = []
+    verified: bool = False
+    bio: Optional[str] = None
+
+class SafetyPlan(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    warning_signs: List[str] = []
+    coping_strategies: List[str] = []
+    support_contacts: List[dict] = []
+    professional_contacts: List[dict] = []
+    safe_places: List[str] = []
+    reasons_to_live: List[str] = []
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class EducationCourse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    title: str
+    description: str
+    category: str  # stress, anxiety, depression, general
+    modules: List[dict] = []
+    duration_minutes: int
+    language: str = "en"
+    difficulty: str = "beginner"
