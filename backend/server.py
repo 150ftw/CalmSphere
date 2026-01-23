@@ -113,7 +113,13 @@ async def register(user_data: UserCreate):
     # Create temporary token
     temp_token = create_access_token({"user_id": user.id, "email": user.email, "role": user.role, "temp": True})
     
-    return Token(access_token="", token_type="bearer", user=user, requires_otp=True, temp_token=temp_token)
+    return Token(
+        access_token="", 
+        token_type="bearer", 
+        user=user, 
+        requires_otp=True, 
+        temp_token=temp_token
+    )
 
 @api_router.post("/auth/verify-otp")
 async def verify_registration_otp(user_id: str, otp_code: str, temp_token: str):
