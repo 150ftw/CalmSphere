@@ -199,6 +199,52 @@ async def verify_login_otp(user_id: str, otp_code: str, temp_token: str):
     
     return Token(access_token=token, token_type="bearer", user=user)
 
+@api_router.post("/auth/forgot-password")
+async def forgot_password(email: str):
+    """Request password reset - sends OTP to email and phone"""
+    user_dict = await db.users.find_one({"email": email}, {"_id": 0})
+    if not user_dict:
+        # Don't reveal if email exists for security
+        return {"message": "If this email exists, an OTP has been sent"}
+    
+    # Send OTP
+    otp_result = await create_and_send_otp(db, user_dict['id'], user_dict['email'], user_dict['phone_number'], "password_reset")
+    
+    # Create temporary token
+    temp_token = create_access_token({"user_id": user_dict['id'], "email": user_dict['email'], "temp": True, "purpose": "password_reset"})
+    
+    return {
+        "message": "OTP sent to your email and phone",
+        "user_id": user_dict['id'],
+        "temp_token": temp_token
+    }
+
+@api_router.post("/auth/reset-password")
+async def reset_password(user_id: str, otp_code: str, new_password: str, temp_token: str):
+    """Verify OTP and reset password"""
+    # Verify temp token
+    try:
+        from jose import jwt
+        payload = jwt.decode(temp_token, os.environ.get('JWT_SECRET', 'default_secret'), algorithms=[os.environ.get('JWT_ALGORITHM', 'HS256')])
+        if not payload.get('temp') or payload.get('user_id') != user_id or payload.get('purpose') != 'password_reset':
+            raise HTTPException(status_code=401, detail="Invalid token")
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
+    # Verify OTP
+    verification = await verify_otp(db, user_id, otp_code, "password_reset")
+    if not verification['success']:
+        raise HTTPException(status_code=400, detail=verification['message'])
+    
+    # Update password
+    new_password_hash = hash_password(new_password)
+    await db.users.update_one(
+        {"id": user_id},
+        {"$set": {"password_hash": new_password_hash}}
+    )
+    
+    return {"message": "Password reset successfully"}
+
 # Profile Routes
 @api_router.post("/profile/onboarding")
 async def complete_onboarding(profile_data: dict, token_data: dict = Depends(verify_token)):
