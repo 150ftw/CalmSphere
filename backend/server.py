@@ -117,13 +117,16 @@ async def register(user_data: UserCreate):
     # Create temporary token
     temp_token = create_access_token({"user_id": user.id, "email": user.email, "role": user.role, "temp": True})
     
+    # Only include OTP in response if testing mode is enabled
+    otp_code_test = otp_result.get("otp_code") if TESTING_MODE else None
+    
     return Token(
         access_token="", 
         token_type="bearer", 
         user=user, 
         requires_otp=True, 
         temp_token=temp_token,
-        otp_code_test=otp_result.get("otp_code")  # FOR TESTING - Remove in production
+        otp_code_test=otp_code_test
     )
 
 @api_router.post("/auth/verify-otp")
