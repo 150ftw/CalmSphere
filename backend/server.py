@@ -237,11 +237,14 @@ async def forgot_password(email: str):
     # Create temporary token
     temp_token = create_access_token({"user_id": user_dict['id'], "email": user_dict['email'], "temp": True, "purpose": "password_reset"})
     
+    # Only include OTP in response if testing mode is enabled
+    otp_code_test = otp_result.get("otp_code") if TESTING_MODE else None
+    
     return {
         "message": "OTP sent to your email and phone",
         "user_id": user_dict['id'],
         "temp_token": temp_token,
-        "otp_code_test": otp_result.get("otp_code")  # FOR TESTING - Remove in production
+        "otp_code_test": otp_code_test
     }
 
 @api_router.post("/auth/reset-password")
