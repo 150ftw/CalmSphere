@@ -24,9 +24,13 @@ from content_selector import (
 from emergentintegrations.llm.chat import LlmChat, UserMessage as LlmUserMessage
 import new_features_routes
 from otp_service import create_and_send_otp, verify_otp
+import os
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
+
+# Check if OTP testing mode is enabled
+TESTING_MODE = os.environ.get('ENABLE_OTP_TESTING_MODE', 'false').lower() == 'true'
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
