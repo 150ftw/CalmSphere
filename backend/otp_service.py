@@ -252,8 +252,9 @@ async def create_and_send_otp(db, user_id: str, email: str, phone_number: str, p
         "otp_id": otp_doc["id"]
     }
     
-    # Only include OTP in response if testing mode is enabled
-    if TESTING_MODE:
+    # Check testing mode at runtime
+    testing_mode = os.environ.get('ENABLE_OTP_TESTING_MODE', 'false').lower() == 'true'
+    if testing_mode:
         result["otp_code"] = otp_code
         logger.info(f"🧪 [TESTING MODE] OTP for user {user_id}: {otp_code}")
     
