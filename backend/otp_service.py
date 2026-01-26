@@ -202,14 +202,16 @@ Need support? Call KIRAN: 1800-599-0019"""
 
 def send_otp_email(email: str, otp: str, purpose: str = "login"):
     """Wrapper for email sending with fallback to logging"""
-    if TESTING_MODE:
+    testing_mode = os.environ.get('ENABLE_OTP_TESTING_MODE', 'false').lower() == 'true'
+    if testing_mode:
         logger.info(f"🧪 [TESTING MODE] Email OTP to {email}: {otp}")
         return True
     return send_otp_email_sendgrid(email, otp, purpose)
 
 def send_otp_sms(phone_number: str, otp: str, purpose: str = "login"):
     """Wrapper for SMS sending with provider selection"""
-    if TESTING_MODE:
+    testing_mode = os.environ.get('ENABLE_OTP_TESTING_MODE', 'false').lower() == 'true'
+    if testing_mode:
         logger.info(f"🧪 [TESTING MODE] SMS OTP to {phone_number}: {otp}")
         return True
     
