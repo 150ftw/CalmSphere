@@ -4,6 +4,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 import httpx
 import logging
+import uuid
 from models import User, UserSession
 
 logger = logging.getLogger(__name__)
