@@ -13,12 +13,11 @@ ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
 from models import (
-    UserCreate, User, Token, UserProfile, ChatMessage, ChatSession,
+    UserProfile, ChatMessage, ChatSession,
     AssessmentResult, MoodEntry, SelfHelpModule, ConfigSettings,
-    SendMessageRequest, StartAssessmentRequest, SubmitAssessmentRequest,
+    SendMessageRequest, SubmitAssessmentRequest,
     MoodEntryRequest
 )
-from auth import hash_password, verify_password, create_access_token, verify_token
 from risk_engine import detect_risk_level, get_crisis_response, get_high_risk_response
 from content_selector import (
     get_assessment_questions, calculate_assessment_score,
@@ -27,10 +26,8 @@ from content_selector import (
 
 from emergentintegrations.llm.chat import LlmChat, UserMessage as LlmUserMessage
 import new_features_routes
-from otp_service import create_and_send_otp, verify_otp
-
-# Check if OTP testing mode is enabled
-TESTING_MODE = os.environ.get('ENABLE_OTP_TESTING_MODE', 'false').lower() == 'true'
+import google_auth
+from auth_middleware import get_current_user_id
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
