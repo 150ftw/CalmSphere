@@ -61,14 +61,19 @@ async def get_current_user(request: Request, authorization: Optional[str] = Head
         await db.user_sessions.delete_one({"session_token": session_token})
         return None
     
-    # Get user
+    # Get user - try user_id first, then fall back to id for old users
+    user_id = session_doc.get("user_id")
     user_doc = await db.users.find_one(
-        {"user_id": session_doc["user_id"]},
+        {"$or": [{"user_id": user_id}, {"id": user_id}]},
         {"_id": 0}
     )
     
     if not user_doc:
         return None
+    
+    # Ensure user_id is in the response
+    if "user_id" not in user_doc and "id" in user_doc:
+        user_doc["user_id"] = user_doc["id"]
     
     return user_doc
 
