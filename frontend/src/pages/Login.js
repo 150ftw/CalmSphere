@@ -1,19 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useEffect, useState, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
 import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
-const EMERGENT_AUTH_URL = 'https://accounts.emergent.dev';
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { loginUser, user } = useAuth();
-  const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
-  const [processingAuth, setProcessingAuth] = useState(false);
+  const hasProcessed = useRef(false);
 
   // If user already logged in, redirect to dashboard
   useEffect(() => {
@@ -22,16 +21,17 @@ export default function Login() {
     }
   }, [user, navigate]);
 
-  // Handle OAuth callback
+  // Handle OAuth callback - check for session_id in URL hash
   useEffect(() => {
-    const sessionId = searchParams.get('session_id');
-    
-    if (sessionId && !processingAuth) {
-      setProcessingAuth(true);
-      handleGoogleCallback(sessionId);
+    const hash = location.hash;
+    if (hash && hash.includes('session_id=') && !hasProcessed.current) {
+      hasProcessed.current = true;
+      const sessionId = hash.split('session_id=')[1]?.split('&')[0];
+      if (sessionId) {
+        handleGoogleCallback(sessionId);
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
+  }, [location.hash]);
 
   const handleGoogleCallback = async (sessionId) => {
     setLoading(true);
@@ -54,6 +54,9 @@ export default function Login() {
       
       toast.success(`Welcome, ${userData.name || 'User'}!`);
       
+      // Clear the hash from URL
+      window.history.replaceState(null, '', window.location.pathname);
+      
       // Check if user needs onboarding
       try {
         const profileResponse = await axios.get(`${API_URL}/api/profile`, {
@@ -72,20 +75,19 @@ export default function Login() {
     } catch (error) {
       console.error('Auth error:', error);
       toast.error('Authentication failed. Please try again.');
-      setProcessingAuth(false);
+      hasProcessed.current = false;
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleSignIn = () => {
-    // Redirect to Emergent Google Auth
-    const currentUrl = window.location.origin + '/login';
-    const authUrl = `${EMERGENT_AUTH_URL}/oauth/google?redirect_url=${encodeURIComponent(currentUrl)}`;
-    window.location.href = authUrl;
+    // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
+    const redirectUrl = window.location.origin + '/login';
+    window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
   };
 
-  if (loading || processingAuth) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-background bg-noise flex items-center justify-center px-6">
         <div className="w-full max-w-md text-center">
