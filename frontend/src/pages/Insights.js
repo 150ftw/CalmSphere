@@ -53,13 +53,13 @@ export default function Insights() {
     <div className="min-h-screen bg-background bg-noise">
       <header className="border-b border-border/40 bg-card/50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 py-4">
-          <Button onClick={() => navigate('/dashboard')} variant="ghost" className="hover:bg-muted/50 rounded-full">
+          <Button data-testid="back-btn" onClick={() => navigate('/dashboard')} variant="ghost" className="hover:bg-muted/50 rounded-full">
             <ArrowLeft className="w-5 h-5 mr-2" />Back
           </Button>
         </div>
       </header>
 
-      <div className="max-w-4xl mx-auto px-6 py-16">
+      <div data-testid="insights-content" className="max-w-4xl mx-auto px-6 py-16">
         <h1 className="font-fraunces text-4xl md:text-5xl font-normal mb-4">Weekly Insights</h1>
         <p className="text-lg text-muted-foreground mb-12">
           {new Date(insight.week_start).toLocaleDateString('en-IN')} - {new Date(insight.week_end).toLocaleDateString('en-IN')}
