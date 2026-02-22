@@ -33,7 +33,7 @@ CalmSphere AI is a web-based mental health and well-being assistant designed for
 ### Core UI ✅
 - [x] Landing page with calming design
 - [x] Login page with "Continue with Google" button
-- [x] Dashboard page
+- [x] Dashboard page with 8 feature cards
 - [x] Navigation and routing
 
 ### Backend Infrastructure ✅
@@ -56,6 +56,12 @@ CalmSphere AI is a web-based mental health and well-being assistant designed for
 - [x] GAD-7 (Anxiety)
 - [x] Stress Scale
 - [x] History tracking
+
+### New Features (Implemented) ✅
+- [x] **Appointments** - Book counseling sessions with campus counselors
+- [x] **Journal** - Daily reflections with writing prompts and sentiment analysis
+- [x] **Community** - Anonymous peer support forum with categories
+- [x] **Insights** - Weekly wellness analytics and recommendations
 
 ---
 
