@@ -133,6 +133,7 @@ export default function Dashboard() {
         {/* New Features Row */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           <button
+            data-testid="appointments-btn"
             onClick={() => navigate('/appointments')}
             className="bg-card rounded-2xl p-6 border border-border/40 shadow-soft hover:shadow-float hover:-translate-y-1 transition-all text-left group"
           >
@@ -142,6 +143,7 @@ export default function Dashboard() {
           </button>
 
           <button
+            data-testid="journal-btn"
             onClick={() => navigate('/journal')}
             className="bg-card rounded-2xl p-6 border border-border/40 shadow-soft hover:shadow-float hover:-translate-y-1 transition-all text-left group"
           >
@@ -151,6 +153,7 @@ export default function Dashboard() {
           </button>
 
           <button
+            data-testid="community-btn"
             onClick={() => navigate('/community')}
             className="bg-card rounded-2xl p-6 border border-border/40 shadow-soft hover:shadow-float hover:-translate-y-1 transition-all text-left group"
           >
@@ -160,6 +163,7 @@ export default function Dashboard() {
           </button>
 
           <button
+            data-testid="insights-btn"
             onClick={() => navigate('/insights')}
             className="bg-card rounded-2xl p-6 border border-border/40 shadow-soft hover:shadow-float hover:-translate-y-1 transition-all text-left group"
           >
