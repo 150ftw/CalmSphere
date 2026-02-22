@@ -86,28 +86,41 @@ async def exchange_session(x_session_id: str = Header(..., alias="X-Session-ID")
             )
         
         if response.status_code != 200:
+            logger.error(f"Auth API returned status {response.status_code}: {response.text}")
             raise HTTPException(status_code=401, detail="Invalid session_id")
         
         auth_data = response.json()
+        logger.info(f"Auth data received: {auth_data}")
         
         # Extract user data
         email = auth_data.get("email")
-        name = auth_data.get("name", email.split("@")[0])
+        name = auth_data.get("name", email.split("@")[0] if email else "User")
         picture = auth_data.get("picture")
         session_token = auth_data.get("session_token")
         
         if not all([email, session_token]):
+            logger.error(f"Incomplete auth data: email={email}, session_token={bool(session_token)}")
             raise HTTPException(status_code=400, detail="Incomplete auth data")
         
         # Check if user exists
         existing_user = await db.users.find_one({"email": email}, {"_id": 0})
         
         if existing_user:
-            # Update existing user
-            user_id = existing_user["user_id"]
+            # Get user_id - handle both old format (id) and new format (user_id)
+            user_id = existing_user.get("user_id") or existing_user.get("id")
+            
+            if not user_id:
+                # Generate new user_id if neither exists
+                user_id = f"user_{uuid.uuid4().hex[:12]}"
+            
+            # Update existing user with new format
             await db.users.update_one(
-                {"user_id": user_id},
-                {"$set": {"name": name, "picture": picture}}
+                {"email": email},
+                {"$set": {
+                    "user_id": user_id,
+                    "name": name,
+                    "picture": picture
+                }}
             )
         else:
             # Create new user
@@ -135,8 +148,8 @@ async def exchange_session(x_session_id: str = Header(..., alias="X-Session-ID")
         # Insert new session
         await db.user_sessions.insert_one(session_dict)
         
-        # Get user data
-        user_doc = await db.users.find_one({"user_id": user_id}, {"_id": 0})
+        # Get updated user data
+        user_doc = await db.users.find_one({"email": email}, {"_id": 0})
         
         return {
             "session_token": session_token,
@@ -145,6 +158,8 @@ async def exchange_session(x_session_id: str = Header(..., alias="X-Session-ID")
         
     except httpx.TimeoutException:
         raise HTTPException(status_code=504, detail="Auth service timeout")
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Session exchange error: {e}")
         raise HTTPException(status_code=500, detail="Session exchange failed")
