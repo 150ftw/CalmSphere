@@ -161,14 +161,14 @@ async def send_message(request_data: SendMessageRequest, request: Request):
     user_id = await get_current_user_id(request)
     
     # Detect risk
-    risk_level, risk_score = detect_risk_level(request.message)
+    risk_level, risk_score = detect_risk_level(request_data.message)
     
     # Save user message
     user_message = ChatMessage(
-        session_id=request.session_id,
+        session_id=request_data.session_id,
         user_id=user_id,
         role="user",
-        content=request.message,
+        content=request_data.message,
         risk_level=risk_level
     )
     
@@ -178,7 +178,7 @@ async def send_message(request_data: SendMessageRequest, request: Request):
     
     # Update session timestamp
     await db.chat_sessions.update_one(
-        {"id": request.session_id},
+        {"id": request_data.session_id},
         {"$set": {"updated_at": datetime.now(timezone.utc).isoformat()}}
     )
     
@@ -188,7 +188,7 @@ async def send_message(request_data: SendMessageRequest, request: Request):
         crisis_msg = get_crisis_response(config)
         
         assistant_message = ChatMessage(
-            session_id=request.session_id,
+            session_id=request_data.session_id,
             user_id=user_id,
             role="assistant",
             content=crisis_msg,
@@ -207,7 +207,7 @@ async def send_message(request_data: SendMessageRequest, request: Request):
     
     # Get conversation history
     history = await db.chat_messages.find(
-        {"session_id": request.session_id},
+        {"session_id": request_data.session_id},
         {"_id": 0}
     ).sort("timestamp", 1).limit(20).to_list(20)
     
@@ -216,11 +216,11 @@ async def send_message(request_data: SendMessageRequest, request: Request):
         api_key = os.environ.get('EMERGENT_LLM_KEY')
         chat = LlmChat(
             api_key=api_key,
-            session_id=request.session_id,
+            session_id=request_data.session_id,
             system_message=SYSTEM_MESSAGE
         ).with_model("openai", "gpt-5.2")
         
-        llm_message = LlmUserMessage(text=request.message)
+        llm_message = LlmUserMessage(text=request_data.message)
         response = await chat.send_message(llm_message)
         
         # Add high risk note if needed
@@ -233,7 +233,7 @@ async def send_message(request_data: SendMessageRequest, request: Request):
     
     # Save assistant response
     assistant_message = ChatMessage(
-        session_id=request.session_id,
+        session_id=request_data.session_id,
         user_id=user_id,
         role="assistant",
         content=response,
