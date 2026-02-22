@@ -301,14 +301,14 @@ async def get_assessment_history(assessment_type: str, request: Request):
 
 # Mood Routes
 @api_router.post("/mood/log")
-async def log_mood(request: MoodEntryRequest, token_data: dict = Depends(verify_token)):
-    user_id = token_data['user_id']
+async def log_mood(request_data: MoodEntryRequest, request: Request):
+    user_id = await get_current_user_id(request)
     
     entry = MoodEntry(
         user_id=user_id,
-        mood_rating=request.mood_rating,
-        tags=request.tags,
-        note=request.note
+        mood_rating=request_data.mood_rating,
+        tags=request_data.tags,
+        note=request_data.note
     )
     
     entry_dict = entry.model_dump()
@@ -318,8 +318,8 @@ async def log_mood(request: MoodEntryRequest, token_data: dict = Depends(verify_
     return entry
 
 @api_router.get("/mood/history")
-async def get_mood_history(token_data: dict = Depends(verify_token)):
-    user_id = token_data['user_id']
+async def get_mood_history(request: Request):
+    user_id = await get_current_user_id(request)
     
     entries = await db.mood_entries.find(
         {"user_id": user_id},
@@ -334,13 +334,14 @@ async def get_mood_history(token_data: dict = Depends(verify_token)):
 
 # Self-help modules
 @api_router.get("/modules")
-async def get_modules(token_data: dict = Depends(verify_token)):
+async def get_modules(request: Request):
+    await get_current_user_id(request)  # Verify user is authenticated
     return get_self_help_modules()
 
 # Dashboard data
 @api_router.get("/dashboard/student")
-async def get_student_dashboard(token_data: dict = Depends(verify_token)):
-    user_id = token_data['user_id']
+async def get_student_dashboard(request: Request):
+    user_id = await get_current_user_id(request)
     
     # Get latest mood
     latest_mood = await db.mood_entries.find_one(
