@@ -31,9 +31,6 @@ CalmSphere AI is an **AI-powered mental wellness assistant** that provides real-
 <img width="1919" height="956" alt="image" src="https://github.com/user-attachments/assets/9bf09394-f7b0-4ea9-ab13-fbd64b533a2d" />
 <img width="1919" height="957" alt="image" src="https://github.com/user-attachments/assets/4cdde945-57e9-4ae8-a26b-2d8ee2552e31" />
 
-
-*(Add screenshots inside a /screenshots folder)*
-
 ---
 
 ## 🚀 Features
