@@ -8,16 +8,12 @@ export const api = axios.create({
 
 // Add token to requests
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('session_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
-
-// Auth
-export const register = (userData) => api.post('/auth/register', userData);
-export const login = (email, password) => api.post('/auth/login', null, { params: { email, password } });
 
 // Profile
 export const completeOnboarding = (data) => api.post('/profile/onboarding', data);
