@@ -24,10 +24,11 @@ CalmSphere AI is a web-based mental health and well-being assistant designed for
 ## Completed Features (December 2024)
 
 ### Authentication ✅
-- [x] Google OAuth via Emergent-managed Auth
+- [x] Google OAuth via Emergent-managed Auth (https://auth.emergentagent.com/)
 - [x] Session-based authentication with Bearer token
 - [x] Auto-redirect for authenticated users
 - [x] Secure logout functionality
+- [x] URL hash-based session_id handling for OAuth callback
 
 ### Core UI ✅
 - [x] Landing page with calming design
