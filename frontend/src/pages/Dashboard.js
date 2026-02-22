@@ -59,7 +59,10 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-6 md:px-12 py-4 flex justify-between items-center">
           <h1 className="font-fraunces text-2xl font-medium">CalmSphere AI</h1>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">Hello, {user?.username}</span>
+            {user?.picture && (
+              <img src={user.picture} alt="" className="w-8 h-8 rounded-full" />
+            )}
+            <span className="text-sm text-muted-foreground">Hello, {user?.name || user?.username || 'User'}</span>
             <Button
               data-testid="logout-btn"
               onClick={handleLogout}
