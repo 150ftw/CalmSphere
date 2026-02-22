@@ -87,7 +87,7 @@ app.include_router(google_auth.router, prefix="/api/auth", tags=["auth"])
 # Profile Routes
 @api_router.post("/profile/onboarding")
 async def complete_onboarding(profile_data: dict, request: Request):
-    user_id = token_data['user_id']
+    user_id = await get_current_user_id(request)
     
     profile = UserProfile(
         user_id=user_id,
@@ -107,8 +107,8 @@ async def complete_onboarding(profile_data: dict, request: Request):
     return {"message": "Onboarding completed", "profile": profile}
 
 @api_router.get("/profile")
-async def get_profile(token_data: dict = Depends(verify_token)):
-    user_id = token_data['user_id']
+async def get_profile(request: Request):
+    user_id = await get_current_user_id(request)
     profile = await db.user_profiles.find_one({"user_id": user_id}, {"_id": 0})
     return profile
 
