@@ -80,6 +80,33 @@ async def get_latest_scores(user_id: str) -> dict:
             scores[assessment_type] = result['total_score']
     return scores
 
+# Include Google Auth routes
+google_auth.set_db(db)
+app.include_router(google_auth.router, prefix="/api/auth", tags=["auth"])
+async def get_config() -> dict:
+    config = await db.config_settings.find_one({}, {"_id": 0})
+    if not config:
+        config = {
+            "crisis_hotline": "1800-599-0019",  # KIRAN Mental Health Helpline
+            "campus_counselor_phone": "Contact your campus health center",
+            "campus_counselor_email": "Available through campus resources",
+            "risk_threshold_high": 15,
+            "risk_threshold_medium": 10
+        }
+    return config
+
+async def get_latest_scores(user_id: str) -> dict:
+    scores = {}
+    for assessment_type in ['phq9', 'gad7', 'stress']:
+        result = await db.assessment_results.find_one(
+            {"user_id": user_id, "assessment_type": assessment_type},
+            {"_id": 0},
+            sort=[("timestamp", -1)]
+        )
+        if result:
+            scores[assessment_type] = result['total_score']
+    return scores
+
 # Auth Routes
 @api_router.post("/auth/register", response_model=Token)
 async def register(user_data: UserCreate):
