@@ -31,6 +31,7 @@ export default function Login() {
         handleGoogleCallback(sessionId);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.hash]);
 
   const handleGoogleCallback = async (sessionId) => {
