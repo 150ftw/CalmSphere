@@ -114,8 +114,8 @@ async def get_profile(request: Request):
 
 # Chat Routes
 @api_router.post("/chat/session/create")
-async def create_chat_session(token_data: dict = Depends(verify_token)):
-    user_id = token_data['user_id']
+async def create_chat_session(request: Request):
+    user_id = await get_current_user_id(request)
     
     session = ChatSession(user_id=user_id)
     session_dict = session.model_dump()
@@ -127,8 +127,8 @@ async def create_chat_session(token_data: dict = Depends(verify_token)):
     return session
 
 @api_router.get("/chat/sessions")
-async def get_chat_sessions(token_data: dict = Depends(verify_token)):
-    user_id = token_data['user_id']
+async def get_chat_sessions(request: Request):
+    user_id = await get_current_user_id(request)
     sessions = await db.chat_sessions.find(
         {"user_id": user_id},
         {"_id": 0}
@@ -143,7 +143,8 @@ async def get_chat_sessions(token_data: dict = Depends(verify_token)):
     return sessions
 
 @api_router.get("/chat/session/{session_id}/messages")
-async def get_chat_messages(session_id: str, token_data: dict = Depends(verify_token)):
+async def get_chat_messages(session_id: str, request: Request):
+    await get_current_user_id(request)  # Verify user is authenticated
     messages = await db.chat_messages.find(
         {"session_id": session_id},
         {"_id": 0}
@@ -156,8 +157,8 @@ async def get_chat_messages(session_id: str, token_data: dict = Depends(verify_t
     return messages
 
 @api_router.post("/chat/send")
-async def send_message(request: SendMessageRequest, token_data: dict = Depends(verify_token)):
-    user_id = token_data['user_id']
+async def send_message(request_data: SendMessageRequest, request: Request):
+    user_id = await get_current_user_id(request)
     
     # Detect risk
     risk_level, risk_score = detect_risk_level(request.message)
