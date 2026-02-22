@@ -80,7 +80,7 @@ export default function Dashboard() {
         {/* Welcome Section */}
         <div className="mb-12">
           <h2 className="font-fraunces text-4xl md:text-5xl font-normal mb-4">
-            Welcome back, {user?.username}
+            Welcome back, {user?.name?.split(' ')[0] || user?.username || 'User'}
           </h2>
           <p className="text-lg text-muted-foreground">
             How are you feeling today?
