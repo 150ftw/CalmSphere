@@ -243,8 +243,8 @@ MIT License
 
 **Shivam Sharma**
 
-* GitHub: [https://github.com/ShivamSharma]([https://github.com/yourusername](https://github.com/150ftw))
-* LinkedIn: [https://linkedin.com/in/ShivamSharma]([https://linkedin.com/in/yourprofile](https://www.linkedin.com/in/shivam-sharma-331945284/))
+* GitHub: [ShivamSharma](https://github.com/150ftw)
+* LinkedIn: [Shivam Sharma](https://www.linkedin.com/in/shivam-sharma-331945284/)
 
 ---
 
