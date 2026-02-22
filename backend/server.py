@@ -257,22 +257,23 @@ async def send_message(request_data: SendMessageRequest, request: Request):
 
 # Assessment Routes
 @api_router.get("/assessment/questions/{assessment_type}")
-async def get_questions(assessment_type: str, token_data: dict = Depends(verify_token)):
+async def get_questions(assessment_type: str, request: Request):
+    await get_current_user_id(request)  # Verify user is authenticated
     questions = get_assessment_questions(assessment_type)
     if not questions:
         raise HTTPException(status_code=404, detail="Assessment not found")
     return {"assessment_type": assessment_type, "questions": questions}
 
 @api_router.post("/assessment/submit")
-async def submit_assessment(request: SubmitAssessmentRequest, token_data: dict = Depends(verify_token)):
-    user_id = token_data['user_id']
+async def submit_assessment(request_data: SubmitAssessmentRequest, request: Request):
+    user_id = await get_current_user_id(request)
     
-    total_score, severity = calculate_assessment_score(request.assessment_type, request.responses)
+    total_score, severity = calculate_assessment_score(request_data.assessment_type, request_data.responses)
     
     result = AssessmentResult(
         user_id=user_id,
-        assessment_type=request.assessment_type,
-        responses=request.responses,
+        assessment_type=request_data.assessment_type,
+        responses=request_data.responses,
         total_score=total_score,
         severity=severity
     )
@@ -284,8 +285,8 @@ async def submit_assessment(request: SubmitAssessmentRequest, token_data: dict =
     return result
 
 @api_router.get("/assessment/history/{assessment_type}")
-async def get_assessment_history(assessment_type: str, token_data: dict = Depends(verify_token)):
-    user_id = token_data['user_id']
+async def get_assessment_history(assessment_type: str, request: Request):
+    user_id = await get_current_user_id(request)
     
     results = await db.assessment_results.find(
         {"user_id": user_id, "assessment_type": assessment_type},
