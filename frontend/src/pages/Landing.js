@@ -26,7 +26,7 @@ export default function Landing() {
               <div className="flex flex-wrap gap-4">
                 <Button
                   data-testid="get-started-btn"
-                  onClick={() => navigate('/register')}
+                  onClick={() => navigate('/login')}
                   className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-lg font-medium shadow-soft hover:shadow-float hover:scale-[1.02] active:scale-[0.98] transition-all"
                 >
                   Get Started
