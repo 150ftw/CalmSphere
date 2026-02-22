@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 const AuthContext = createContext(null);
@@ -9,32 +9,38 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('session_token'));
   const [loading, setLoading] = useState(true);
 
+  const checkAuth = useCallback(async () => {
+    const storedToken = localStorage.getItem('session_token');
+    
+    if (storedToken) {
+      try {
+        const response = await axios.get(`${API_URL}/api/auth/me`, {
+          headers: { Authorization: `Bearer ${storedToken}` }
+        });
+        setUser(response.data);
+        setToken(storedToken);
+      } catch (error) {
+        // Session expired or invalid
+        console.log('Session verification failed:', error);
+        localStorage.removeItem('session_token');
+        localStorage.removeItem('user');
+        setUser(null);
+        setToken(null);
+      }
+    }
+    setLoading(false);
+  }, []);
+
   // Verify session on mount
   useEffect(() => {
-    const verifySession = async () => {
-      const storedToken = localStorage.getItem('session_token');
-      
-      if (storedToken) {
-        try {
-          const response = await axios.get(`${API_URL}/api/auth/me`, {
-            headers: { Authorization: `Bearer ${storedToken}` }
-          });
-          setUser(response.data);
-          setToken(storedToken);
-        } catch (error) {
-          // Session expired or invalid
-          console.log('Session verification failed:', error);
-          localStorage.removeItem('session_token');
-          localStorage.removeItem('user');
-          setUser(null);
-          setToken(null);
-        }
-      }
+    // CRITICAL: If returning from OAuth callback, skip the /me check.
+    // AuthCallback will exchange the session_id and establish the session first.
+    if (window.location.hash?.includes('session_id=')) {
       setLoading(false);
-    };
-
-    verifySession();
-  }, []);
+      return;
+    }
+    checkAuth();
+  }, [checkAuth]);
 
   const loginUser = (userData, sessionToken) => {
     setUser(userData);
