@@ -67,17 +67,11 @@ CalmSphere AI is a web-based mental health and well-being assistant designed for
 
 ## In Progress / Upcoming (P0)
 
-### Frontend Implementation for New Features
-- [ ] Appointments page - UI and booking flow
-- [ ] Journal page - Entry creation and viewing
-- [ ] Community page - Anonymous posts and comments
-- [ ] Insights page - Weekly analytics and trends
-
-### Backend API Enhancements
-- [ ] Appointment booking workflow
-- [ ] Journal sentiment analysis
-- [ ] Community moderation
-- [ ] Weekly insights generation
+### Backend Enhancements
+- [ ] Email notifications for appointments
+- [ ] Advanced sentiment analysis for journal entries
+- [ ] Community post moderation system
+- [ ] Real-time insights with more data points
 
 ---
 
