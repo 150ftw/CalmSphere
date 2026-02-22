@@ -1,11 +1,11 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Request
 from typing import List
 from datetime import datetime, timezone, timedelta
 from models import (
     Appointment, JournalEntry, CommunityPost, CommunityComment,
     WeeklyInsight, UserGoal
 )
-from auth import verify_token
+from auth_middleware import get_current_user_id
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 
@@ -20,8 +20,8 @@ def set_db(database):
 
 # Appointment Routes
 @router.post("/appointments/book")
-async def book_appointment(appointment_data: dict, token_data: dict = Depends(verify_token)):
-    user_id = token_data['user_id']
+async def book_appointment(appointment_data: dict, request: Request):
+    user_id = await get_current_user_id(request)
     
     appointment = Appointment(
         user_id=user_id,
@@ -39,8 +39,8 @@ async def book_appointment(appointment_data: dict, token_data: dict = Depends(ve
     return appointment
 
 @router.get("/appointments")
-async def get_appointments(token_data: dict = Depends(verify_token)):
-    user_id = token_data['user_id']
+async def get_appointments(request: Request):
+    user_id = await get_current_user_id(request)
     appointments = await db.appointments.find(
         {"user_id": user_id},
         {"_id": 0}
@@ -58,10 +58,11 @@ async def get_appointments(token_data: dict = Depends(verify_token)):
 async def update_appointment_status(
     appointment_id: str,
     status: str,
-    token_data: dict = Depends(verify_token)
+    request: Request
 ):
+    user_id = await get_current_user_id(request)
     result = await db.appointments.update_one(
-        {"id": appointment_id, "user_id": token_data['user_id']},
+        {"id": appointment_id, "user_id": user_id},
         {"$set": {"status": status}}
     )
     
@@ -72,8 +73,8 @@ async def update_appointment_status(
 
 # Journal Routes
 @router.post("/journal/entries")
-async def create_journal_entry(entry_data: dict, token_data: dict = Depends(verify_token)):
-    user_id = token_data['user_id']
+async def create_journal_entry(entry_data: dict, request: Request):
+    user_id = await get_current_user_id(request)
     
     # Simple sentiment analysis
     content_lower = entry_data['content'].lower()
@@ -106,8 +107,8 @@ async def create_journal_entry(entry_data: dict, token_data: dict = Depends(veri
     return entry
 
 @router.get("/journal/entries")
-async def get_journal_entries(token_data: dict = Depends(verify_token)):
-    user_id = token_data['user_id']
+async def get_journal_entries(request: Request):
+    user_id = await get_current_user_id(request)
     entries = await db.journal_entries.find(
         {"user_id": user_id},
         {"_id": 0}
@@ -120,7 +121,8 @@ async def get_journal_entries(token_data: dict = Depends(verify_token)):
     return entries
 
 @router.get("/journal/prompts")
-async def get_journal_prompts():
+async def get_journal_prompts(request: Request):
+    await get_current_user_id(request)  # Verify auth
     prompts = [
         {"type": "reflection", "prompt": "What are three things that went well today and why?"},
         {"type": "gratitude", "prompt": "What am I grateful for right now?"},
@@ -133,8 +135,8 @@ async def get_journal_prompts():
 
 # Community Routes
 @router.post("/community/posts")
-async def create_community_post(post_data: dict, token_data: dict = Depends(verify_token)):
-    user_id = token_data['user_id']
+async def create_community_post(post_data: dict, request: Request):
+    user_id = await get_current_user_id(request)
     
     # Generate anonymous username
     username_display = post_data.get('username_display', f"Anonymous_{user_id[:8]}")
@@ -155,7 +157,10 @@ async def create_community_post(post_data: dict, token_data: dict = Depends(veri
     return post
 
 @router.get("/community/posts")
-async def get_community_posts(category: str = None, token_data: dict = Depends(verify_token)):
+async def get_community_posts(category: str = None, request: Request = None):
+    if request:
+        await get_current_user_id(request)  # Verify auth
+    
     query = {}
     if category:
         query['category'] = category
@@ -169,7 +174,8 @@ async def get_community_posts(category: str = None, token_data: dict = Depends(v
     return posts
 
 @router.post("/community/posts/{post_id}/like")
-async def like_post(post_id: str, token_data: dict = Depends(verify_token)):
+async def like_post(post_id: str, request: Request):
+    await get_current_user_id(request)  # Verify auth
     result = await db.community_posts.update_one(
         {"id": post_id},
         {"$inc": {"likes_count": 1}}
@@ -181,8 +187,8 @@ async def like_post(post_id: str, token_data: dict = Depends(verify_token)):
     return {"message": "Liked"}
 
 @router.post("/community/posts/{post_id}/comments")
-async def add_comment(post_id: str, comment_data: dict, token_data: dict = Depends(verify_token)):
-    user_id = token_data['user_id']
+async def add_comment(post_id: str, comment_data: dict, request: Request):
+    user_id = await get_current_user_id(request)
     username_display = comment_data.get('username_display', f"Anonymous_{user_id[:8]}")
     
     comment = CommunityComment(
@@ -206,7 +212,8 @@ async def add_comment(post_id: str, comment_data: dict, token_data: dict = Depen
     return comment
 
 @router.get("/community/posts/{post_id}/comments")
-async def get_comments(post_id: str, token_data: dict = Depends(verify_token)):
+async def get_comments(post_id: str, request: Request):
+    await get_current_user_id(request)  # Verify auth
     comments = await db.community_comments.find(
         {"post_id": post_id},
         {"_id": 0}
@@ -220,8 +227,8 @@ async def get_comments(post_id: str, token_data: dict = Depends(verify_token)):
 
 # Insights Routes
 @router.get("/insights/weekly")
-async def get_weekly_insight(token_data: dict = Depends(verify_token)):
-    user_id = token_data['user_id']
+async def get_weekly_insight(request: Request):
+    user_id = await get_current_user_id(request)
     
     # Calculate current week
     now = datetime.now(timezone.utc)
@@ -296,8 +303,8 @@ async def get_weekly_insight(token_data: dict = Depends(verify_token)):
 
 # Goals Routes
 @router.post("/goals")
-async def create_goal(goal_data: dict, token_data: dict = Depends(verify_token)):
-    user_id = token_data['user_id']
+async def create_goal(goal_data: dict, request: Request):
+    user_id = await get_current_user_id(request)
     
     goal = UserGoal(
         user_id=user_id,
@@ -316,8 +323,8 @@ async def create_goal(goal_data: dict, token_data: dict = Depends(verify_token))
     return goal
 
 @router.get("/goals")
-async def get_goals(token_data: dict = Depends(verify_token)):
-    user_id = token_data['user_id']
+async def get_goals(request: Request):
+    user_id = await get_current_user_id(request)
     goals = await db.user_goals.find(
         {"user_id": user_id, "status": "active"},
         {"_id": 0}
