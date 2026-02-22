@@ -44,10 +44,10 @@ export default function Journal() {
     <div className="min-h-screen bg-background bg-noise">
       <header className="border-b border-border/40 bg-card/50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <Button onClick={() => navigate('/dashboard')} variant="ghost" className="hover:bg-muted/50 rounded-full">
+          <Button data-testid="back-btn" onClick={() => navigate('/dashboard')} variant="ghost" className="hover:bg-muted/50 rounded-full">
             <ArrowLeft className="w-5 h-5 mr-2" />Back
           </Button>
-          <Button onClick={() => setShowNew(true)} className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-6">
+          <Button data-testid="new-entry-btn" onClick={() => setShowNew(true)} className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-6">
             New Entry
           </Button>
         </div>
