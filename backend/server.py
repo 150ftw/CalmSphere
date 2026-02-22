@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, Request
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -83,39 +83,10 @@ async def get_latest_scores(user_id: str) -> dict:
 # Include Google Auth routes
 google_auth.set_db(db)
 app.include_router(google_auth.router, prefix="/api/auth", tags=["auth"])
-async def get_config() -> dict:
-    config = await db.config_settings.find_one({}, {"_id": 0})
-    if not config:
-        config = {
-            "crisis_hotline": "1800-599-0019",  # KIRAN Mental Health Helpline
-            "campus_counselor_phone": "Contact your campus health center",
-            "campus_counselor_email": "Available through campus resources",
-            "risk_threshold_high": 15,
-            "risk_threshold_medium": 10
-        }
-    return config
-
-async def get_latest_scores(user_id: str) -> dict:
-    scores = {}
-    for assessment_type in ['phq9', 'gad7', 'stress']:
-        result = await db.assessment_results.find_one(
-            {"user_id": user_id, "assessment_type": assessment_type},
-            {"_id": 0},
-            sort=[("timestamp", -1)]
-        )
-        if result:
-            scores[assessment_type] = result['total_score']
-    return scores
-
-# Authentication is now handled by Google OAuth
-# See google_auth.py for auth routes:
-# - POST /api/auth/session - Exchange session_id for user data
-# - GET /api/auth/me - Get current user
-# - POST /api/auth/logout - Logout user
 
 # Profile Routes
 @api_router.post("/profile/onboarding")
-async def complete_onboarding(profile_data: dict, token_data: dict = Depends(verify_token)):
+async def complete_onboarding(profile_data: dict, request: Request):
     user_id = token_data['user_id']
     
     profile = UserProfile(
